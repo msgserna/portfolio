@@ -17,18 +17,23 @@ function preload() {
 }
 
 function setup() {
+  // Canvas del tamaño de la ventana
   cnv = createCanvas(windowWidth, windowHeight);
 
-  // 👇 marcar este canvas con una clase propia
+  // Clase para poder aplicar estilos desde CSS (mix-blend, etc.)
   cnv.elt.classList.add("p5-portrait-canvas");
 
+  // Imagen base donde leemos el brillo
   img = createImage(width, height);
   nextImage();
 
+  // "Pintor" que recorre la imagen
   paint = new Paint(createVector(width / 2, height / 2));
 
-  // fondo transparente (no usar background(0) a secas)
+  // Fondo transparente (muy importante para que solo se vean los trazos)
   clear();
+
+  // Modo color normal RGBA
   colorMode(RGB, 255, 255, 255, 255);
 }
 
@@ -45,6 +50,23 @@ function draw() {
   if (count > width) {
     isStop = true;
   }
+}
+
+// Si redimensionas la ventana, opcionalmente puedes reajustar el canvas
+function windowResized() {
+  // Si no quieres que cambie el tamaño, puedes comentar esto
+  resizeCanvas(windowWidth, windowHeight);
+  clear();
+  if (img) {
+    img = createImage(width, height);
+    nextImage();
+  }
+  if (paint) {
+    paint.reset();
+  }
+  isStop = false;
+  count = 0;
+  z = 0;
 }
 
 // -------- UTILIDADES DE IMAGEN --------
@@ -71,6 +93,7 @@ function fset(i, j, c) {
 
 function nextImage() {
   if (!img) return;
+
   imgIndex = ++imgIndex % imgs.length;
   var targetImg = imgs[imgIndex];
 
@@ -86,10 +109,12 @@ function nextImage() {
     img.height
   );
   img.loadPixels();
+
+  // limpiamos el canvas para que empiece a "pintar" desde cero
   clear();
 }
 
-// Opcional: pausar/reanudar con "S" si quieres
+// Opcional: pausar/reanudar con "S"
 function keyPressed() {
   if (key === "s" || key === "S") {
     isStop = !isStop;

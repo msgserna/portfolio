@@ -33,24 +33,16 @@ const techLogos = [
 export default function HeroSection() {
   return (
     <section className="h-screen w-screen bg-transparent p-0">
-      {/* Contenedor 100% x 100% */}
-      
       <div className="flex h-full w-full overflow-hidden">
         {/* IZQUIERDA -> 50% */}
         <div className="relative h-full w-1/2 overflow-hidden">
-          {/* Capa transparente para SmoothCursor / SmoothPointer */}
           <div className="absolute inset-0 bg-transparent" />
-
-          {/* Aquí solo se monta el canvas */}
           <P5Portrait />
-
-          {/* Si quieres, luego volvemos a meter el degradado, pero primero que se vea bien el trazo */}
-          {/* <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_20%,_hsl(var(--background))_80%,_hsl(var(--background))_100%)]" /> */}
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_40%,_hsl(var(--background))_100%)]" />
         </div>
 
         {/* DERECHA -> 50% */}
         <div className="flex h-full w-1/2 flex-col justify-between px-8 py-10 lg:px-16 lg:py-16">
-          {/* BLOQUE SUPERIOR: Thinking in + MorphingText */}
           <div className="mt-[100px] space-y-2">
             <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
               Thinking in...
@@ -68,7 +60,6 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* BLOQUE CENTRAL: Nombre, rol, botones */}
           <div className="space-y-4">
             <Badge
               variant="outline"
@@ -108,7 +99,6 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* LOOP DE LOGOS */}
           <div
             style={{
               height: "120px",
@@ -126,7 +116,7 @@ export default function HeroSection() {
               hoverSpeed={0}
               scaleOnHover
               fadeOut
-              fadeOutColor="hsl(var(--background) / 0.9)" // 90% opaco
+              fadeOutColor="hsl(var(--background) / 0.9)"
               ariaLabel="Technology partners"
             />
           </div>

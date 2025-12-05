@@ -13,38 +13,16 @@ function Paint(p) {
   var noiseScale = 100.0;
   var noiseInfluence = 1 / 20.0;
 
-  // Parámetros de dibujo (los de tu sketch original)
-  var dropRate = 0.004;   // probabilidad de “gota” más gruesa
-  var drawWeight = 1;     // grosor base
+  // Parámetros de dibujo
+  var dropRate = 0.004;     // probabilidad de “gota” más gruesa
+  var drawWeight = 1;       // grosor base
 
-  // Opacidades separadas para light/dark
-  var drawAlphaLight = 50;
-  var dropAlphaLight = 150;
-
-  var drawAlphaDark = 85;   // un poco más fuerte en dark para que destaque
-  var dropAlphaDark = 210;
+  // Opacidades (ajusta si quieres más o menos fuerte)
+  var drawAlpha = 80;       // trazo normal
+  var dropAlpha = 200;      // gotas
 
   var count = 0;
-  var maxCount = 100;     // longitud de cada recorrido del pintor
-
-  // -------- detección de tema --------
-  function isDarkTheme() {
-    if (typeof document === "undefined") return false;
-
-    var html = document.documentElement;
-    var body = document.body || null;
-
-    // cubrimos varias formas típicas de marcar el tema
-    var hasDarkClass =
-      html.classList.contains("dark") ||
-      (body && body.classList.contains("dark"));
-
-    var hasDarkDataTheme =
-      html.getAttribute("data-theme") === "dark" ||
-      (body && body.getAttribute("data-theme") === "dark");
-
-    return hasDarkClass || hasDarkDataTheme;
-  }
+  var maxCount = 100;       // longitud de cada recorrido del pintor
 
   // -------- lógica de movimiento --------
 
@@ -135,19 +113,10 @@ function Paint(p) {
     count++;
     if (count > maxCount) this.reset();
 
-    var dark = isDarkTheme();
-
-    // color base + “gotas” en función del tema
-    var drawAlpha = dark ? drawAlphaDark : drawAlphaLight;
-    var dropAlpha = dark ? dropAlphaDark : dropAlphaLight;
-
-    var baseColor = dark
-      ? color(255, 255, 255, drawAlpha) // blanco en dark
-      : color(0, 0, 0, drawAlpha);      // negro en light
-
-    var boldColor = dark
-      ? color(255, 255, 255, dropAlpha)
-      : color(0, 0, 0, dropAlpha);
+    // SIEMPRE dibujamos en blanco con alpha;
+    // mix-blend: difference se encargará de que se vea oscuro en light y claro en dark
+    var baseColor = color(255, 255, 255, drawAlpha);
+    var boldColor = color(255, 255, 255, dropAlpha);
 
     stroke(baseColor);
     strokeWeight(drawWeight);

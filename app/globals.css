@@ -148,12 +148,14 @@
   cursor: none !important;
 }
 
-/* Aseguramos que el canvas ocupa toda la mitad izquierda */
+/* Aseguramos el tamaño del canvas */
 .p5-portrait-canvas {
   width: 100% !important;
   height: 100% !important;
   display: block;
+  mix-blend-mode: difference; /* 👈 la magia */
 }
+
 
 /* 👇 SOLO en dark invertimos los píxeles del canvas */
 .dark .p5-portrait-canvas {
