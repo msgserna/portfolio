@@ -1,8 +1,6 @@
-// paint.js
-
 function Paint(p) {
-  var ppos = p.copy();      // posición anterior
-  var pos = p.copy();       // posición actual
+  var ppos = p.copy();
+  var pos = p.copy();
   var vel = createVector(0, 0);
   var force = createVector(0, 0);
 
@@ -13,53 +11,62 @@ function Paint(p) {
   var noiseScale = 100.0;
   var noiseInfluence = 1 / 20.0;
 
-  // Parámetros de dibujo
-  var dropRate = 0.004;     // probabilidad de “gota” más gruesa
-  var drawWeight = 1;       // grosor base
-
-  // Opacidades (ajusta si quieres más o menos fuerte)
-  var drawAlpha = 80;       // trazo normal
-  var dropAlpha = 200;      // gotas
-
+  var dropRate = 0.004;
+  var dropRange = 40;
+  var dropAlpha = 150;
+  var drawAlpha = 50;
+  var drawColor = color(0, 0, 0, drawAlpha);
+  var drawWeight = 1;
   var count = 0;
-  var maxCount = 100;       // longitud de cada recorrido del pintor
+  var maxCount = 100;
 
-  // -------- lógica de movimiento --------
+  // helper para obtener color de trazo según tema
+  function getThemedStrokeColor(baseColor, alphaOverride) {
+    var a = alphaOverride != null ? alphaOverride : alpha(baseColor);
+    // isDarkTheme viene de mySketch.js
+    if (typeof isDarkTheme !== "undefined" && isDarkTheme) {
+      // tema oscuro -> blanco
+      return color(255, 255, 255, a);
+    } else {
+      // tema claro (o sin info) -> negro
+      return color(0, 0, 0, a);
+    }
+  }
 
   this.update = function () {
     ppos = pos.copy();
     force.mult(0);
 
-    // Fuerza de la imagen (busca zonas más oscuras)
+    // Add pixels force
     var target = createVector(0, 0);
-    var nCount = 0;
+    var count = 0;
     for (var i = -floor(perception / 2); i < perception / 2; i++) {
       for (var j = -floor(perception / 2); j < perception / 2; j++) {
-        if (i === 0 && j === 0) continue;
+        if (i == 0 && j == 0) continue;
         var x = floor(pos.x + i);
         var y = floor(pos.y + j);
         if (x <= img.width - 1 && x >= 0 && y < img.height - 1 && y >= 0) {
           var c = fget(x, y);
           var b = brightness(c);
           b = 1 - b / 100.0;
-          var pv = createVector(i, j);
-          target.add(pv.normalize().copy().mult(b).div(pv.mag()));
-          nCount++;
+          var p = createVector(i, j);
+          target.add(p.normalize().copy().mult(b).div(p.mag()));
+          count++;
         }
       }
     }
-    if (nCount !== 0) {
-      force.add(target.div(nCount));
+    if (count != 0) {
+      force.add(target.div(count));
     }
 
-    // Fuerza de ruido
+    // Add noise force
     var n = noise(pos.x / noiseScale, pos.y / noiseScale, z);
     n = map(n, 0, 1, 0, 5 * TWO_PI);
-    var pNoise = p5.Vector.fromAngle(n);
-    if (force.mag() < 0.01) force.add(pNoise.mult(noiseInfluence * 5));
-    else force.add(pNoise.mult(noiseInfluence));
+    var p = p5.Vector.fromAngle(n);
+    if (force.mag() < 0.01) force.add(p.mult(noiseInfluence * 5));
+    else force.add(p.mult(noiseInfluence));
 
-    // Fuerza de los bordes
+    // Add bound force
     var boundForce = createVector(0, 0);
     if (pos.x < bound) {
       boundForce.x = (bound - pos.x) / bound;
@@ -82,7 +89,6 @@ function Paint(p) {
     }
 
     pos.add(vel);
-    // Si se sale del canvas, reiniciamos
     if (pos.x > width || pos.x < 0 || pos.y > height || pos.y < 0) {
       this.reset();
     }
@@ -93,8 +99,8 @@ function Paint(p) {
     img.loadPixels();
 
     count = 0;
+    //maxCount = 200;
     var hasFound = false;
-    // Buscar un punto de inicio en una zona relativamente oscura
     while (!hasFound) {
       pos.x = random(1) * width;
       pos.y = random(1) * height;
@@ -102,28 +108,25 @@ function Paint(p) {
       var b = brightness(c);
       if (b < 35) hasFound = true;
     }
-
+    drawColor = fget(floor(pos.x), floor(pos.y));
+    drawColor.setAlpha(drawAlpha);
     ppos = pos.copy();
     vel.mult(0);
   };
-
-  // -------- dibujo de los trazos --------
 
   this.show = function () {
     count++;
     if (count > maxCount) this.reset();
 
-    // SIEMPRE dibujamos en blanco con alpha;
-    // mix-blend: difference se encargará de que se vea oscuro en light y claro en dark
-    var baseColor = color(255, 255, 255, drawAlpha);
-    var boldColor = color(255, 255, 255, dropAlpha);
-
-    stroke(baseColor);
+    // color base según tema
+    var baseStroke = getThemedStrokeColor(drawColor, drawAlpha);
+    stroke(baseStroke);
     strokeWeight(drawWeight);
 
-    // “gota” más gruesa de vez en cuando
     if (force.mag() > 0.1 && random(1) < dropRate) {
-      stroke(boldColor);
+      // trazo más fuerte, respetando tema
+      var boldStroke = getThemedStrokeColor(drawColor, dropAlpha);
+      stroke(boldStroke);
       var boldWeight = drawWeight + random(5);
       strokeWeight(boldWeight);
     }
@@ -133,7 +136,7 @@ function Paint(p) {
     this.fadeLineFromImg(ppos.x, ppos.y, pos.x, pos.y);
   };
 
-  // Suaviza la zona de la imagen por donde pasa el trazo
+  /* Fade the pixels of the line */
   this.fadeLineFromImg = function (x1, y1, x2, y2) {
     var xOffset = floor(abs(x1 - x2));
     var yOffset = floor(abs(y1 - y2));

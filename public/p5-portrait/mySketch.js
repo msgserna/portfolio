@@ -1,43 +1,80 @@
-// mySketch.js
-
 var imgs = [];
 var imgIndex = -1;
 var img;
 var paint;
-var subStep = 200; // pasos por frame -> controla la velocidad/densidad
+var subStep = 800;
 var z = 0;
 var isStop = false;
 var count = 0;
 
-let cnv;
+// 👇 nuevo: estado de tema
+var isDarkTheme = false;
 
 function preload() {
-  // Asegúrate de que "steven.png" está en la misma carpeta que tu sketch
   imgs[0] = loadImage("steven.png");
 }
 
+// 👇 helpers para leer y aplicar el tema actual
+function getCurrentTheme() {
+  try {
+    var stored = localStorage.getItem("theme");
+    if (stored === "light" || stored === "dark") return stored;
+  } catch (e) {
+    // localStorage puede no estar disponible, ignoramos
+  }
+
+  // fallback si el usuario usa "system"
+  if (
+    typeof window !== "undefined" &&
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
+    return "dark";
+  }
+  return "light";
+}
+
+function applyTheme(theme) {
+  isDarkTheme = theme === "dark";
+}
+
+// Escuchar cambios de tema en tiempo real (next-themes escribe en localStorage.theme)
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", function (event) {
+    if (event.key === "theme") {
+      var newTheme = event.newValue;
+      if (newTheme === "light" || newTheme === "dark" || newTheme === "system") {
+        applyTheme(getCurrentTheme());
+        // Si quisieras limpiar el dibujo al cambiar de tema:
+        // clear();
+      }
+    }
+  });
+}
+
 function setup() {
-  // Canvas del tamaño de la ventana
-  cnv = createCanvas(windowWidth, windowHeight);
+  // Canvas = tamaño del iframe (mitad izquierda de la pantalla)
+  createCanvas(windowWidth, windowHeight);
 
-  // Clase para poder aplicar estilos desde CSS (mix-blend, etc.)
-  cnv.elt.classList.add("p5-portrait-canvas");
-
-  // Imagen base donde leemos el brillo
+  // Imagen base con el mismo tamaño que el canvas
   img = createImage(width, height);
+
+  // Cargamos la primera imagen dentro de img (con contain)
   nextImage();
 
-  // "Pintor" que recorre la imagen
+  // Creamos el pintor
   paint = new Paint(createVector(width / 2, height / 2));
 
-  // Fondo transparente (muy importante para que solo se vean los trazos)
+  // 👇 fondo transparente
   clear();
-
-  // Modo color normal RGBA
   colorMode(RGB, 255, 255, 255, 255);
+
+  // 👇 aplicar tema inicial
+  applyTheme(getCurrentTheme());
 }
 
 function draw() {
+  //console.log(frameRate());
   if (!isStop) {
     for (var i = 0; i < subStep; i++) {
       paint.update();
@@ -45,31 +82,13 @@ function draw() {
       z += 0.01;
     }
   }
-
   count++;
   if (count > width) {
     isStop = true;
   }
+  //background(255);
+  //image(img, 0, 0, width, height);
 }
-
-// Si redimensionas la ventana, opcionalmente puedes reajustar el canvas
-function windowResized() {
-  // Si no quieres que cambie el tamaño, puedes comentar esto
-  resizeCanvas(windowWidth, windowHeight);
-  clear();
-  if (img) {
-    img = createImage(width, height);
-    nextImage();
-  }
-  if (paint) {
-    paint.reset();
-  }
-  isStop = false;
-  count = 0;
-  z = 0;
-}
-
-// -------- UTILIDADES DE IMAGEN --------
 
 function fget(i, j) {
   var index = j * img.width + i;
@@ -91,12 +110,29 @@ function fset(i, j, c) {
   img.pixels[index + 3] = alpha(c);
 }
 
+function keyPressed() {
+  console.log(key);
+  if (key === "s" || key === "S") {
+    isStop = !isStop;
+  }
+}
+
+// 🔴 IMPORTANTE: quitamos interacción por click/touch
+// function mouseClicked() {
+//   nextImage();
+// 	isStop = false;
+// 	count = 0;
+// }
+// function touchStarted() {
+//   nextImage();
+// 	isStop = false;
+// 	count = 0;
+// }
+
 function nextImage() {
   if (!img) return;
-
   imgIndex = ++imgIndex % imgs.length;
   var targetImg = imgs[imgIndex];
-
   img.copy(
     targetImg,
     0,
@@ -108,15 +144,7 @@ function nextImage() {
     img.width,
     img.height
   );
+  //img.resize(width, height);
   img.loadPixels();
-
-  // limpiamos el canvas para que empiece a "pintar" desde cero
   clear();
-}
-
-// Opcional: pausar/reanudar con "S"
-function keyPressed() {
-  if (key === "s" || key === "S") {
-    isStop = !isStop;
-  }
 }

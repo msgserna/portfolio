@@ -36,8 +36,13 @@ export default function HeroSection() {
       <div className="flex h-full w-full overflow-hidden">
         {/* IZQUIERDA -> 50% */}
         <div className="relative h-full w-1/2 overflow-hidden">
+          {/* Capa transparente para SmoothCursor / SmoothPointer (si la necesitas) */}
           <div className="absolute inset-0 bg-transparent" />
+
+          {/* Canvas p5 */}
           <P5Portrait />
+
+          {/* Degradado radial por ENCIMA del canvas */}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_40%,_hsl(var(--background))_100%)]" />
         </div>
 
