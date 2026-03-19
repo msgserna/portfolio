@@ -3,6 +3,9 @@ function Paint(p) {
   var pos = p.copy();
   var vel = createVector(0, 0);
   var force = createVector(0, 0);
+  var history = [];
+  var historyMax = 40;
+  var strokeW = random(0.2, 0.8);
 
   var maxSpeed = 3.0;
   var perception = 5;
@@ -11,33 +14,29 @@ function Paint(p) {
   var noiseScale = 100.0;
   var noiseInfluence = 1 / 20.0;
 
-  var dropRate = 0.004;
-  var dropRange = 40;
-  var dropAlpha = 150;
-  var drawAlpha = 50;
+  var drawAlpha = 5;
   var drawColor = color(0, 0, 0, drawAlpha);
-  var drawWeight = 1;
   var count = 0;
   var maxCount = 100;
 
-  // helper para obtener color de trazo según tema
   function getThemedStrokeColor(baseColor, alphaOverride) {
     var a = alphaOverride != null ? alphaOverride : alpha(baseColor);
-    // isDarkTheme viene de mySketch.js
-    if (typeof isDarkTheme !== "undefined" && isDarkTheme) {
-      // tema oscuro -> blanco
-      return color(255, 255, 255, a);
-    } else {
-      // tema claro (o sin info) -> negro
-      return color(0, 0, 0, a);
-    }
+    // Siempre dibujar en negro — CSS invert(1) se encarga del dark mode
+    return color(0, 0, 0, a);
+  }
+
+  function edgeFade(x, y) {
+    var margin = 180;
+    var dx = min(x, width - x);
+    var dy = min(y, height - y);
+    var d = min(dx, dy);
+    return constrain(map(d, 0, margin, 0, 1), 0, 1);
   }
 
   this.update = function () {
     ppos = pos.copy();
     force.mult(0);
 
-    // Add pixels force
     var target = createVector(0, 0);
     var count = 0;
     for (var i = -floor(perception / 2); i < perception / 2; i++) {
@@ -59,27 +58,17 @@ function Paint(p) {
       force.add(target.div(count));
     }
 
-    // Add noise force
     var n = noise(pos.x / noiseScale, pos.y / noiseScale, z);
     n = map(n, 0, 1, 0, 5 * TWO_PI);
     var p = p5.Vector.fromAngle(n);
     if (force.mag() < 0.01) force.add(p.mult(noiseInfluence * 5));
     else force.add(p.mult(noiseInfluence));
 
-    // Add bound force
     var boundForce = createVector(0, 0);
-    if (pos.x < bound) {
-      boundForce.x = (bound - pos.x) / bound;
-    }
-    if (pos.x > width - bound) {
-      boundForce.x = (pos.x - width) / bound;
-    }
-    if (pos.y < bound) {
-      boundForce.y = (bound - pos.y) / bound;
-    }
-    if (pos.y > height - bound) {
-      boundForce.y = (pos.y - height) / bound;
-    }
+    if (pos.x < bound)          boundForce.x = (bound - pos.x) / bound;
+    if (pos.x > width - bound)  boundForce.x = (pos.x - width) / bound;
+    if (pos.y < bound)          boundForce.y = (bound - pos.y) / bound;
+    if (pos.y > height - bound) boundForce.y = (pos.y - height) / bound;
     force.add(boundForce.mult(boundForceFactor));
 
     vel.add(force);
@@ -92,6 +81,8 @@ function Paint(p) {
     if (pos.x > width || pos.x < 0 || pos.y > height || pos.y < 0) {
       this.reset();
     }
+
+    history.push(pos.copy());
   };
 
   this.reset = function () {
@@ -99,44 +90,62 @@ function Paint(p) {
     img.loadPixels();
 
     count = 0;
-    //maxCount = 200;
     var hasFound = false;
+
+    var fc = typeof frameCount !== "undefined" ? frameCount : 9999;
+    var minX, maxX, minY, maxY;
+    if (fc < 500) {
+      minX = width * 0.2;  maxX = width * 0.8;
+      minY = 0;            maxY = height * 0.38;
+    } else if (fc < 1000) {
+      minX = 0;            maxX = width;
+      minY = 0;            maxY = height * 0.6;
+    } else {
+      minX = 0;            maxX = width;
+      minY = 0;            maxY = height;
+    }
+
     while (!hasFound) {
-      pos.x = random(1) * width;
-      pos.y = random(1) * height;
+      pos.x = random(minX, maxX);
+      pos.y = random(minY, maxY);
       var c = fget(floor(pos.x), floor(pos.y));
       var b = brightness(c);
       if (b < 35) hasFound = true;
     }
+
     drawColor = fget(floor(pos.x), floor(pos.y));
-    drawColor.setAlpha(drawAlpha);
     ppos = pos.copy();
     vel.mult(0);
+    history = [];
+    strokeW = random(0.2, 0.8);
   };
 
   this.show = function () {
     count++;
     if (count > maxCount) this.reset();
 
-    // color base según tema
-    var baseStroke = getThemedStrokeColor(drawColor, drawAlpha);
-    stroke(baseStroke);
-    strokeWeight(drawWeight);
+    // Dibuja la curva completa y creciente a través del historial
+    if (history.length >= 3) {
+      var fade = edgeFade(pos.x, pos.y);
+      noFill();
+      stroke(getThemedStrokeColor(drawColor, drawAlpha * fade));
+      strokeWeight(strokeW);
+      beginShape();
+      for (var h = 0; h < history.length; h++) {
+        curveVertex(history[h].x, history[h].y);
+      }
+      endShape();
 
-    if (force.mag() > 0.1 && random(1) < dropRate) {
-      // trazo más fuerte, respetando tema
-      var boldStroke = getThemedStrokeColor(drawColor, dropAlpha);
-      stroke(boldStroke);
-      var boldWeight = drawWeight + random(5);
-      strokeWeight(boldWeight);
+      this.fadeLineFromImg(ppos.x, ppos.y, pos.x, pos.y);
     }
 
-    line(ppos.x, ppos.y, pos.x, pos.y);
-
-    this.fadeLineFromImg(ppos.x, ppos.y, pos.x, pos.y);
+    // Trazo completo: reinicia historial y sortea nuevo grosor
+    if (history.length >= historyMax) {
+      history = [];
+      strokeW = random(0.2, 0.8);
+    }
   };
 
-  /* Fade the pixels of the line */
   this.fadeLineFromImg = function (x1, y1, x2, y2) {
     var xOffset = floor(abs(x1 - x2));
     var yOffset = floor(abs(y1 - y2));
@@ -145,15 +154,12 @@ function Paint(p) {
       var x = floor(x1 + ((x2 - x1) * i) / step);
       var y = floor(y1 + ((y2 - y1) * i) / step);
       var originColor = fget(x, y);
-
       var r = red(originColor);
       var g = green(originColor);
       var b = blue(originColor);
-
       originColor.setRed(r + 50 > 255 ? 255 : r + 50);
       originColor.setGreen(g + 50 > 255 ? 255 : g + 50);
       originColor.setBlue(b + 50 > 255 ? 255 : b + 50);
-
       fset(x, y, originColor);
     }
   };

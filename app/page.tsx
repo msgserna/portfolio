@@ -1,7 +1,6 @@
 // app/page.tsx
 import HeroSection from "@/components/sections/hero-section";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
-import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import { DockDemo } from "@/components/sections/mymenu";
 import ProjectSection from "@/components/sections/projects-section";
 import HowIWorkSection from "@/components/sections/how-i-work-section";
@@ -15,7 +14,6 @@ import { ChevronLeft,ChevronRight, FileCode } from "lucide-react";
 export default function HomePage() {
   return (
     <main className="absolute top-0 left-0 min-h-screen w-full bg-transparent text-foreground overflow-x-hidden">
-      <SmoothCursor />
       <ScrollProgress />
       <div className="fixed top-4 left-0 right-0 z-50 flex justify-end px-4 lg:px-16">
         <DockDemo />

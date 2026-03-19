@@ -13,21 +13,31 @@ import {
   SiNextdotjs,
   SiTypescript,
   SiTailwindcss,
+  SiJavascript,
+  SiCss,
+  SiGit,
+  SiNodedotjs,
+  SiPostgresql,
+  SiMongodb,
+  SiSupabase,
+  SiFirebase,
+  SiDocker,
 } from "react-icons/si";
 
 const techLogos = [
+  { node: <SiJavascript />, title: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+  { node: <SiTypescript />, title: "TypeScript", href: "https://www.typescriptlang.org" },
   { node: <SiReact />, title: "React", href: "https://react.dev" },
   { node: <SiNextdotjs />, title: "Next.js", href: "https://nextjs.org" },
-  {
-    node: <SiTypescript />,
-    title: "TypeScript",
-    href: "https://www.typescriptlang.org",
-  },
-  {
-    node: <SiTailwindcss />,
-    title: "Tailwind CSS",
-    href: "https://tailwindcss.com",
-  },
+  { node: <SiCss />, title: "CSS3", href: "https://developer.mozilla.org/en-US/docs/Web/CSS" },
+  { node: <SiTailwindcss />, title: "Tailwind CSS", href: "https://tailwindcss.com" },
+  { node: <SiNodedotjs />, title: "Node.js", href: "https://nodejs.org" },
+  { node: <SiGit />, title: "Git", href: "https://git-scm.com" },
+  { node: <SiPostgresql />, title: "PostgreSQL", href: "https://www.postgresql.org" },
+  { node: <SiMongodb />, title: "MongoDB", href: "https://www.mongodb.com" },
+  { node: <SiSupabase />, title: "Supabase", href: "https://supabase.com" },
+  { node: <SiFirebase />, title: "Firebase", href: "https://firebase.google.com" },
+  { node: <SiDocker />, title: "Docker", href: "https://www.docker.com" },
 ];
 
 export default function HeroSection() {
@@ -43,7 +53,7 @@ export default function HeroSection() {
           <P5Portrait />
 
           {/* Degradado radial por ENCIMA del canvas */}
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_40%,_hsl(var(--background))_100%)]" />
+          <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_center,_transparent_10%,_hsl(var(--background))_60%)]" />
         </div>
 
         {/* DERECHA -> 50% */}
@@ -54,6 +64,7 @@ export default function HeroSection() {
             </p>
             <div className="text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl">
               <MorphingText
+                className="mx-0 text-left"
                 texts={[
                   "Solutions",
                   "Innovation",
@@ -70,7 +81,7 @@ export default function HeroSection() {
               variant="outline"
               className="mt-20 text-xs uppercase tracking-[0.35em] text-muted-foreground"
             >
-              Web Developer
+            App Web Developer
             </Badge>
 
             <div>
@@ -80,11 +91,10 @@ export default function HeroSection() {
                 </TextAnimate>
               </h1>
 
-              <div className="mt-2 text-lg text-muted-foreground">
+              <div className="mt-5 max-w-lg text-md text-muted-foreground">
                 <TextAnimate animation="blurInUp" by="character" once as="p">
                   I enjoy breaking down complex ideas into simple, usable
-                  interfaces and I’m constantly exploring new tools and
-                  technologies to improve my work—especially within the React
+                  interfaces and I’m constantly exploring new tools and technologies to improve my work especially within the React
                   and Next.js ecosystem.
                 </TextAnimate>
               </div>
@@ -102,28 +112,25 @@ export default function HeroSection() {
                 <InteractiveHoverButton>GitHub</InteractiveHoverButton>
               </a>
             </div>
-          </div>
 
-          <div
-            style={{
-              height: "120px",
-              width: "50vw",
-              position: "relative",
-            }}
-            className="mt-4"
-          >
-            <LogoLoop
-              logos={techLogos}
-              speed={120}
-              direction="left"
-              logoHeight={48}
-              gap={40}
-              hoverSpeed={0}
-              scaleOnHover
-              fadeOut
-              fadeOutColor="hsl(var(--background) / 0.9)"
-              ariaLabel="Technology partners"
-            />
+            <div
+              style={{
+                height: "120px",
+              }}
+              className="w-full mt-20 overflow-hidden rounded-lg"
+            >
+              <LogoLoop
+                logos={techLogos}
+                speed={120}
+                direction="left"
+                logoHeight={48}
+                gap={40}
+                hoverSpeed={0}
+                scaleOnHover
+                fadeOut
+                ariaLabel="Technology partners"
+              />
+            </div>
           </div>
         </div>
       </div>

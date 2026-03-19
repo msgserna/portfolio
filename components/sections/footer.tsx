@@ -13,7 +13,7 @@ export default function SiteFooter() {
             M. Steven Serna
           </p>
           <p className="text-xs text-muted-foreground">
-            Frontend & Creative Developer — building interfaces with React,
+            App web & Creative Developer — building interfaces with React,
             Next.js and generative visuals.
           </p>
         </div>

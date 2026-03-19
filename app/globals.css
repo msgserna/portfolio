@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Ocultar scrollbar pero mantener scroll funcional */
+* {
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -136,6 +144,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    cursor: auto;
   }
 }
 
@@ -144,9 +153,6 @@
     mix-blend-mode: normal;
 }
 
-* {
-  cursor: none !important;
-}
 
 .p5-portrait-canvas {
   width: 100% !important;

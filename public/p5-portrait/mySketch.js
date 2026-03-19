@@ -1,8 +1,9 @@
 var imgs = [];
 var imgIndex = -1;
 var img;
-var paint;
-var subStep = 800;
+var paints = [];
+var numPaints = 50;
+var subStep = 3;
 var z = 0;
 var isStop = false;
 var count = 0;
@@ -11,7 +12,7 @@ var count = 0;
 var isDarkTheme = false;
 
 function preload() {
-  imgs[0] = loadImage("steven.png");
+  imgs[0] = loadImage("mario2.png");
 }
 
 // 👇 helpers para leer y aplicar el tema actual
@@ -38,15 +39,19 @@ function applyTheme(theme) {
   isDarkTheme = theme === "dark";
 }
 
-// Escuchar cambios de tema en tiempo real (next-themes escribe en localStorage.theme)
+// Escuchar cambios de tema desde la página padre via postMessage
 if (typeof window !== "undefined") {
-  window.addEventListener("storage", function (event) {
-    if (event.key === "theme") {
-      var newTheme = event.newValue;
-      if (newTheme === "light" || newTheme === "dark" || newTheme === "system") {
-        applyTheme(getCurrentTheme());
-        // Si quisieras limpiar el dibujo al cambiar de tema:
-        // clear();
+  window.addEventListener("message", function (event) {
+    if (event.data && event.data.type === "theme-change") {
+      applyTheme(event.data.theme);
+      // Invertir el canvas via CSS (GPU, sin bloquear draw)
+      var canvas = document.querySelector("canvas");
+      if (canvas) {
+        canvas.style.filter = isDarkTheme ? "invert(1)" : "none";
+      }
+      // Reanudar el loop por si la view-transition lo pausó
+      if (typeof loop === "function") {
+        loop();
       }
     }
   });
@@ -62,8 +67,12 @@ function setup() {
   // Cargamos la primera imagen dentro de img (con contain)
   nextImage();
 
-  // Creamos el pintor
-  paint = new Paint(createVector(width / 2, height / 2));
+  // Creamos los pinceles y los dispersamos desde el inicio
+  for (var k = 0; k < numPaints; k++) {
+    var p = new Paint(createVector(width / 2, height / 2));
+    p.reset();
+    paints.push(p);
+  }
 
   // 👇 fondo transparente
   clear();
@@ -71,23 +80,27 @@ function setup() {
 
   // 👇 aplicar tema inicial
   applyTheme(getCurrentTheme());
+  var c = document.querySelector("canvas");
+  if (c && isDarkTheme) {
+    c.style.filter = "invert(1)";
+  }
 }
 
 function draw() {
-  //console.log(frameRate());
   if (!isStop) {
     for (var i = 0; i < subStep; i++) {
-      paint.update();
-      paint.show();
+      for (var k = 0; k < paints.length; k++) {
+        paints[k].update();
+        paints[k].show();
+      }
       z += 0.01;
     }
   }
   count++;
-  if (count > width) {
+  // Ajustamos el límite para compensar los menos pasos por frame
+  if (count > width * 7) {
     isStop = true;
   }
-  //background(255);
-  //image(img, 0, 0, width, height);
 }
 
 function fget(i, j) {

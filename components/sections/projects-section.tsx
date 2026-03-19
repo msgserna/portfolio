@@ -51,7 +51,7 @@ const ProjectSection: React.FC = () => {
               <div className="text-sm leading-tight">
                 <p className="font-medium">M. Steven Serna</p>
                 <p className="text-xs text-muted-foreground">
-                  Frontend & Creative Developer
+                  App web & Creative Developer
                 </p>
               </div>
             </div>
@@ -61,7 +61,7 @@ const ProjectSection: React.FC = () => {
           <div className="lg:col-span-7 space-y-6 lg:pt-4">
             <div className="text-lg sm:text-xl lg:text-2xl font-semibold leading-snug">
             <TextAnimate animation="blurInUp" by="character" once as="p">
-              I&apos;m a Fullstack developer focused on React, Next.js and
+              I&apos;m a App web developer focused on React, Next.js and
               modern UI and working with BBDD MySQL. I design and build digital products that feel fast,
               intentional and crafted – from clean landing pages to playful,
               generative experiences that leave a mark.
