@@ -54,12 +54,12 @@ const DATA = {
       },
       LinkedIn: {
         name: "LinkedIn",
-        url: "www.linkedin.com/in/msserna",
+        url: "https://www.linkedin.com/in/msserna",
         icon: Icons.linkedin,
       },
       email: {
         name: "Send Email",
-        url: "#",
+        url: "mailto:msg.serna.dev@gmail.com",
         icon: Icons.email,
       },
     },
