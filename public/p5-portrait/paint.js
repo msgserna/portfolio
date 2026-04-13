@@ -14,7 +14,7 @@ function Paint(p) {
   var noiseScale = 100.0;
   var noiseInfluence = 1 / 20.0;
 
-  var drawAlpha = 5;
+  var drawAlpha = 40;
   var drawColor = color(0, 0, 0, drawAlpha);
   var count = 0;
   var maxCount = 100;
@@ -124,14 +124,16 @@ function Paint(p) {
     count++;
     if (count > maxCount) this.reset();
 
-    // Dibuja la curva completa y creciente a través del historial
-    if (history.length >= 3) {
+    // Solo dibuja el segmento nuevo usando los últimos puntos del historial
+    if (history.length >= 2) {
       var fade = edgeFade(pos.x, pos.y);
       noFill();
       stroke(getThemedStrokeColor(drawColor, drawAlpha * fade));
       strokeWeight(strokeW);
+
+      var start = max(0, history.length - 4);
       beginShape();
-      for (var h = 0; h < history.length; h++) {
+      for (var h = start; h < history.length; h++) {
         curveVertex(history[h].x, history[h].y);
       }
       endShape();

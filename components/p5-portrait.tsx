@@ -15,14 +15,29 @@ export default function P5Portrait() {
       );
     };
 
+    // Pausar/reanudar el sketch según visibilidad del iframe
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => {
+        iframeRef.current?.contentWindow?.postMessage(
+          { type: entry.isIntersecting ? "resume" : "pause" },
+          "*"
+        );
+      },
+      { threshold: 0.1 }
+    );
+    if (iframeRef.current) visibilityObserver.observe(iframeRef.current);
+
     // Observar cambios de clase en <html> (next-themes / toggler)
-    const observer = new MutationObserver(sendTheme);
-    observer.observe(document.documentElement, {
+    const themeObserver = new MutationObserver(sendTheme);
+    themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
 
-    return () => observer.disconnect();
+    return () => {
+      visibilityObserver.disconnect();
+      themeObserver.disconnect();
+    };
   }, []);
 
   return (

@@ -39,20 +39,26 @@ function applyTheme(theme) {
   isDarkTheme = theme === "dark";
 }
 
-// Escuchar cambios de tema desde la página padre via postMessage
+// Escuchar mensajes desde la página padre (tema, pausa, reanudación)
 if (typeof window !== "undefined") {
   window.addEventListener("message", function (event) {
-    if (event.data && event.data.type === "theme-change") {
+    if (!event.data) return;
+
+    if (event.data.type === "theme-change") {
       applyTheme(event.data.theme);
-      // Invertir el canvas via CSS (GPU, sin bloquear draw)
       var canvas = document.querySelector("canvas");
       if (canvas) {
         canvas.style.filter = isDarkTheme ? "invert(1)" : "none";
       }
-      // Reanudar el loop por si la view-transition lo pausó
-      if (typeof loop === "function") {
-        loop();
-      }
+      if (typeof loop === "function") loop();
+    }
+
+    if (event.data.type === "pause" && typeof noLoop === "function") {
+      noLoop();
+    }
+
+    if (event.data.type === "resume" && typeof loop === "function") {
+      if (!isStop) loop();
     }
   });
 }
@@ -98,7 +104,7 @@ function draw() {
   }
   count++;
   // Ajustamos el límite para compensar los menos pasos por frame
-  if (count > width * 7) {
+  if (count > width * 3) {
     isStop = true;
   }
 }

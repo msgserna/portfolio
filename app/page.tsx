@@ -25,10 +25,10 @@ export default function HomePage() {
         <div className="h-60 w-full px-4 lg:px-16 flex items-center justify-center">
         <ScrollVelocityContainer className="text-4xl font-bold md:text-7xl">
           <ScrollVelocityRow baseVelocity={10} direction={1}>
-          Full Stack Developer 
+          Web App Developer <span className="mx-3">//</span>
           </ScrollVelocityRow>
           <ScrollVelocityRow baseVelocity={10} direction={-1}>
-            Full Stack Developer 
+            Web App Developer <span className="mx-3">//</span>
           </ScrollVelocityRow>
         </ScrollVelocityContainer>
         </div>
