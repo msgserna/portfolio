@@ -15,18 +15,6 @@ export default function P5Portrait() {
       );
     };
 
-    // Pausar/reanudar el sketch según visibilidad del iframe
-    const visibilityObserver = new IntersectionObserver(
-      ([entry]) => {
-        iframeRef.current?.contentWindow?.postMessage(
-          { type: entry.isIntersecting ? "resume" : "pause" },
-          "*"
-        );
-      },
-      { threshold: 0.1 }
-    );
-    if (iframeRef.current) visibilityObserver.observe(iframeRef.current);
-
     // Observar cambios de clase en <html> (next-themes / toggler)
     const themeObserver = new MutationObserver(sendTheme);
     themeObserver.observe(document.documentElement, {
@@ -35,7 +23,6 @@ export default function P5Portrait() {
     });
 
     return () => {
-      visibilityObserver.disconnect();
       themeObserver.disconnect();
     };
   }, []);
@@ -46,7 +33,7 @@ export default function P5Portrait() {
         ref={iframeRef}
         src="/p5-portrait/index.html"
         title="Retrato generativo"
-        loading="lazy"
+        loading="eager"
         className="h-full w-full"
       />
     </div>

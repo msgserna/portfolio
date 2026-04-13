@@ -9,7 +9,6 @@ import {
   ScrollVelocityContainer,
   ScrollVelocityRow,
 } from "@/components/ui/scroll-based-velocity";
-import { ChevronLeft,ChevronRight, FileCode } from "lucide-react";
 
 export default function HomePage() {
   return (
@@ -25,10 +24,10 @@ export default function HomePage() {
         <div className="h-60 w-full px-4 lg:px-16 flex items-center justify-center">
         <ScrollVelocityContainer className="text-4xl font-bold md:text-7xl">
           <ScrollVelocityRow baseVelocity={10} direction={1}>
-          Web App Developer <span className="mx-3">//</span>
+          Web App Developer <span className="mx-3">{'  //  '}</span>
           </ScrollVelocityRow>
           <ScrollVelocityRow baseVelocity={10} direction={-1}>
-            Web App Developer <span className="mx-3">//</span>
+            Web App Developer <span className="mx-3">{'  //  '}</span>
           </ScrollVelocityRow>
         </ScrollVelocityContainer>
         </div>
